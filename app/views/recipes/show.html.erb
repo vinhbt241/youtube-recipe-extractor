@@ -1,0 +1,48 @@
+<div class="w-full max-w-xl mx-auto" data-controller="recipe-status"
+     data-recipe-status-status-value="<%= @recipe.status %>">
+  <p class="text-sm text-gray-500 mb-4">
+    <%= link_to "← Extract another", root_path, class: "underline" %>
+  </p>
+
+  <% if @recipe.pending? || @recipe.processing? %>
+    <h1 class="text-2xl font-bold mb-2">Extracting recipe…</h1>
+    <p class="text-gray-500">This can take up to a minute.</p>
+  <% elsif @recipe.failed? %>
+    <h1 class="text-2xl font-bold mb-2 text-red-600">Could not extract a recipe</h1>
+    <p class="text-gray-700"><%= @recipe.error_message %></p>
+    <% if @recipe.error_code.present? %>
+      <p class="text-xs text-gray-400 mt-2">Error: <%= @recipe.error_code %></p>
+    <% end %>
+  <% else %>
+    <h1 class="text-3xl font-bold mb-2"><%= @recipe.title %></h1>
+    <% if @recipe.description.present? %>
+      <p class="text-gray-600 mb-4"><%= @recipe.description %></p>
+    <% end %>
+
+    <% if @recipe.servings.present? %>
+      <p class="text-sm text-gray-500 mb-4">Servings: <%= @recipe.servings %></p>
+    <% end %>
+
+    <% if @recipe.ingredients.any? %>
+      <h2 class="text-xl font-semibold mt-6 mb-2">Ingredients</h2>
+      <ul class="list-disc pl-6 space-y-1">
+        <% @recipe.ingredients.each do |ingredient| %>
+          <li><%= ingredient %></li>
+        <% end %>
+      </ul>
+    <% end %>
+
+    <% if @recipe.instructions.any? %>
+      <h2 class="text-xl font-semibold mt-6 mb-2">Instructions</h2>
+      <ol class="list-decimal pl-6 space-y-2">
+        <% @recipe.instructions.each do |step| %>
+          <li><%= step %></li>
+        <% end %>
+      </ol>
+    <% end %>
+
+    <p class="text-sm text-gray-400 mt-8">
+      Source: <%= link_to @recipe.url, @recipe.url, class: "underline" %>
+    </p>
+  <% end %>
+</div>

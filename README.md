@@ -1,24 +1,43 @@
-# README
+# YouTube Recipe Extractor
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Paste a YouTube cooking-video URL and get the recipe: ingredients, steps, and times,
+extracted from the video's description and captions.
 
-Things you may want to cover:
+## How it works
 
-* Ruby version
+1. Normalize the URL to a `video_id` (dedup key — `youtu.be/x` and `watch?v=x` are the same recipe).
+2. If the recipe already exists, return it; otherwise create a `pending` recipe and enqueue a job.
+3. The job runs `yt-dlp` to fetch the video metadata (title + description) and the caption track
+   (manual captions preferred, auto-generated as fallback; English preferred).
+4. The transcript is cleaned, then `deepseek-flash` extracts the recipe as JSON.
+5. The recipe is saved and the show page polls until it's `done` or `failed`.
 
-* System dependencies
+## Requirements
 
-* Configuration
+- Ruby 4.0.6 (see `.ruby-version`)
+- PostgreSQL
+- `yt-dlp` on `PATH` (macOS: `brew install yt-dlp`; otherwise `pip install yt-dlp` or the standalone binary)
+- `DEEPSEEK_API_KEY` in the environment (DeepSeek API: https://api.deepseek.com)
 
-* Database creation
+## Setup
 
-* Database initialization
+```sh
+bundle install
+bin/rails db:prepare
+DEEPSEEK_API_KEY=sk-... bin/dev
+```
 
-* How to run the test suite
+Open http://localhost:3000 and paste a video URL.
 
-* Services (job queues, cache servers, search engines, etc.)
+## Background jobs
 
-* Deployment instructions
+- **Development** uses Rails' in-process `:async` adapter — no worker process needed.
+- **Production** uses Solid Queue (`bin/jobs`), configured in `config/environments/production.rb`.
 
-* ...
+## Tests
+
+```sh
+bundle exec rspec
+```
+
+The extraction pipeline is fully stubbed in specs (no network or API key required).

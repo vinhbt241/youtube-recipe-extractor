@@ -1,0 +1,18 @@
+<div class="w-full max-w-xl mx-auto">
+  <h1 class="text-3xl font-bold mb-2">YouTube Recipe Extractor</h1>
+  <p class="text-gray-500 mb-6">Paste a cooking video URL and get the recipe.</p>
+
+  <%= form_with model: @recipe, url: recipes_path, class: "space-y-4" do |form| %>
+    <% if @recipe.errors.any? %>
+      <div class="text-red-600 text-sm"><%= @recipe.errors.full_messages.to_sentence %></div>
+    <% end %>
+
+    <div class="flex gap-2">
+      <%= form.url_field :url,
+            placeholder: "https://www.youtube.com/watch?v=...",
+            class: "flex-1 rounded-lg border border-gray-300 px-3 py-2 text-gray-900" %>
+      <%= form.submit "Extract",
+            class: "rounded-lg bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700" %>
+    </div>
+  <% end %>
+</div>
